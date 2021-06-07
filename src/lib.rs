@@ -258,7 +258,7 @@ pub trait FallibleIterator {
         Self: Sized,
         F: FnMut(&Self::Item) -> Result<bool, Self::Error>,
     {
-        Filter { it: self, f: f }
+        Filter { it: self, f }
     }
 
     /// Returns an iterator which both filters and maps. The closure may fail;
@@ -1130,8 +1130,8 @@ where
 /// underlying iterator.
 #[derive(Clone, Debug)]
 pub struct Map<T, F> {
-    it: T,
-    f: F,
+    pub it: T,
+    pub f: F,
 }
 
 impl<T, F, B> FallibleIterator for Map<T, F>
@@ -1525,8 +1525,8 @@ where
 /// underlying iterator should be yielded.
 #[derive(Clone, Debug)]
 pub struct Filter<I, F> {
-    it: I,
-    f: F,
+    pub it: I,
+    pub f: F,
 }
 
 impl<I, F> FallibleIterator for Filter<I, F>

@@ -2080,8 +2080,8 @@ impl<T, U> From<T> for MappedErr<T, U> {
 /// An iterator which can look at the next element without consuming it.
 #[derive(Clone, Debug)]
 pub struct Peekable<I: FallibleIterator> {
-    it: I,
-    next: Option<I::Item>,
+    pub it: I,
+    pub next: Option<I::Item>,
 }
 
 impl<I> Peekable<I>
@@ -2096,12 +2096,6 @@ where
         }
 
         Ok(self.next.as_ref())
-    }
-
-    /// Returns a mutable reference to the inner iterator
-    #[inline]
-    pub fn iter(&mut self) -> &mut I {
-        &mut self.it
     }
 }
 

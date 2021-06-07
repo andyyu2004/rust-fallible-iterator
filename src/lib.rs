@@ -64,7 +64,6 @@
 //! assert!(big_numbers.count().is_err());
 //! ```
 #![doc(html_root_url = "https://docs.rs/fallible-iterator/0.2")]
-#![warn(missing_docs)]
 #![no_std]
 
 use core::cmp::{self, Ordering};
@@ -103,6 +102,42 @@ mod test;
 enum FoldStop<T, E> {
     Break(T),
     Err(E),
+}
+
+#[inline]
+pub fn from_fn<T, E, F>(f: F) -> FromFn<F>
+where
+    F: FnMut() -> Result<Option<T>, E>,
+{
+    FromFn(f)
+}
+
+/// An iterator where each iteration calls the provided closure `F: FnMut() -> Option<T>`.
+///
+/// This `struct` is created by the [`iter::from_fn()`] function.
+/// See its documentation for more.
+///
+/// [`iter::from_fn()`]: from_fn
+#[derive(Clone)]
+pub struct FromFn<F>(F);
+
+impl<T, E, F> FallibleIterator for FromFn<F>
+where
+    F: FnMut() -> Result<Option<T>, E>,
+{
+    type Error = E;
+    type Item = T;
+
+    #[inline]
+    fn next(&mut self) -> Result<Option<Self::Item>, E> {
+        (self.0)()
+    }
+}
+
+impl<F> std::fmt::Debug for FromFn<F> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("FromFn").finish()
+    }
 }
 
 impl<T, E> From<E> for FoldStop<T, E> {

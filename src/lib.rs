@@ -65,6 +65,7 @@
 //! ```
 #![doc(html_root_url = "https://docs.rs/fallible-iterator/0.2")]
 #![no_std]
+#![feature(generic_associated_types)]
 
 use core::cmp::{self, Ordering};
 use core::iter;
@@ -98,6 +99,8 @@ use crate::imports::*;
 #[cfg(any(feature = "std", feature = "alloc"))]
 #[cfg(test)]
 mod test;
+
+mod lending;
 
 enum FoldStop<T, E> {
     Break(T),

@@ -100,7 +100,7 @@ use crate::imports::*;
 #[cfg(test)]
 mod test;
 
-mod lending;
+pub mod lending;
 
 enum FoldStop<T, E> {
     Break(T),

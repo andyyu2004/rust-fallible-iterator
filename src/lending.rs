@@ -113,6 +113,22 @@ pub trait FallibleLendingIterator {
         Inspect { it: self, f }
     }
 
+    // #[inline]
+    // fn find<'a, P>(&'a mut self, predicate: P) -> Result<Option<Self::Item<'a>>, Self::Error>
+    // where
+    //     Self: Sized,
+    //     Self: 'a,
+    //     <Self as FallibleLendingIterator>::Item<'a>: 'a,
+    //     P: FnMut(&Self::Item<'_>) -> Result<bool, Self::Error>,
+    // {
+    //     self.try_fold((), move |(), x| match predicate(&x)? {
+    //         true => Err(FoldStop::Break(Some(x))),
+    //         false => Ok(()),
+    //     })
+    //     .map(|()| None)
+    //     .unpack_fold()
+    // }
+
     /// Borrow an iterator rather than consuming it.
     ///
     /// This is useful to allow the use of iterator adaptors that would
@@ -316,6 +332,20 @@ where
 pub struct Filter<I, F> {
     pub it: I,
     pub f: F,
+}
+
+impl<I, F> FallibleLendingIterator for Filter<I, F>
+where
+    I: FallibleLendingIterator,
+    F: FnMut(I::Item<'_>) -> Result<bool, I::Error>,
+{
+    type Error = I::Error;
+    type Item<'a> = I::Item<'a>;
+
+    fn next<'a>(&'a mut self) -> Result<Option<Self::Item<'a>>, Self::Error> {
+        let f = &mut self.f;
+        todo!()
+    }
 }
 
 /// An iterator which both filters and maps the values of the underlying
@@ -711,3 +741,41 @@ where
         (low, high)
     }
 }
+
+// #[rustfmt::skip]
+// pub trait IntoFallibleLendingIterator {
+//     /// The elements of the iterator.
+//     type Item<'a>;
+
+//     /// The error value of the iterator.
+//     type Error;
+
+//     /// The iterator.
+//     type IntoFallibleIter<'a>: FallibleLendingIterator<Item<'a> = Self::Item<'a>, Error = Self::Error>;
+
+//     /// Creates a fallible iterator from a value.
+//     fn into_fallible_iter<'a>(self) -> Self::IntoFallibleIter<'a>;
+// }
+
+// #[rustfmt::skip]
+// /// Conversion from a fallible iterator.
+// pub trait FromFallibleLendingIterator<T>: Sized {
+//     /// Creates a value from a fallible iterator.
+//     fn from_fallible_lending_iter<I>(it: I) -> Result<Self, I::Error>
+//     where
+//         I: for<'a> IntoFallibleLendingIterator<Item<'a> = T>;
+// }
+
+// impl<I> IntoFallibleLendingIterator for I
+// where
+//     I: FallibleLendingIterator,
+// {
+//     type Error = I::Error;
+//     type IntoFallibleIter<'a> = I;
+//     type Item<'a> = I::Item<'a>;
+
+//     #[inline]
+//     fn into_fallible_iter<'a>(self) -> I {
+//         self
+//     }
+// }

@@ -101,6 +101,7 @@ use crate::imports::*;
 mod test;
 
 pub mod lending;
+pub use lending::{DoubleEndedFallibleLendingIterator, FallibleLendingIterator};
 
 enum FoldStop<T, E> {
     Break(T),

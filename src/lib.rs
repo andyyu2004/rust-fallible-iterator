@@ -88,7 +88,7 @@ extern crate std;
 
 #[cfg(feature = "std")]
 mod imports {
-    pub use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+    pub use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
     pub use std::hash::{BuildHasher, Hash};
     pub use std::prelude::v1::*;
 }
@@ -1048,6 +1048,20 @@ impl<T> FromFallibleIterator<T> for Vec<T> {
         let it = it.into_fallible_iter();
         let mut vec = Vec::with_capacity(it.size_hint().0);
         it.for_each(|v| Ok(vec.push(v)))?;
+        Ok(vec)
+    }
+}
+
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<T> FromFallibleIterator<T> for VecDeque<T> {
+    #[inline]
+    fn from_fallible_iter<I>(it: I) -> Result<Self, I::Error>
+    where
+        I: IntoFallibleIterator<Item = T>,
+    {
+        let it = it.into_fallible_iter();
+        let mut vec = VecDeque::with_capacity(it.size_hint().0);
+        it.for_each(|v| Ok(vec.push_back(v)))?;
         Ok(vec)
     }
 }

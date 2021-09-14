@@ -2150,6 +2150,16 @@ where
 
         Ok(self.next.as_ref())
     }
+
+    /// Returns a mutable reference to the next value without advancing the iterator.
+    #[inline]
+    pub fn peek_mut(&mut self) -> Result<Option<&mut I::Item>, I::Error> {
+        if self.next.is_none() {
+            self.next = self.it.next()?;
+        }
+
+        Ok(self.next.as_mut())
+    }
 }
 
 impl<I> FallibleIterator for Peekable<I>

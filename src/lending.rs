@@ -15,7 +15,9 @@ use crate::{ChainState, ResultExt};
 
 /// An `Iterator`-like trait that allows for calculation of items to fail.
 pub trait FallibleLendingIterator {
-    type Item<'a>;
+    type Item<'a>
+    where
+        Self: 'a;
     type Error;
 
     fn next<'a>(&'a mut self) -> Result<Option<Self::Item<'a>>, Self::Error>;
@@ -306,7 +308,7 @@ where
     I: FallibleLendingIterator,
 {
     type Error = I::Error;
-    type Item<'a> = (usize, I::Item<'a>);
+    type Item<'a> = (usize, I::Item<'a>) where I : 'a;
 
     fn next<'a>(&'a mut self) -> Result<Option<Self::Item<'a>>, Self::Error> {
         let next = self.it.next()?;
@@ -340,7 +342,7 @@ where
     F: FnMut(I::Item<'_>) -> Result<bool, I::Error>,
 {
     type Error = I::Error;
-    type Item<'a> = I::Item<'a>;
+    type Item<'a> = I::Item<'a> where I: 'a, F: 'a;
 
     fn next<'a>(&'a mut self) -> Result<Option<Self::Item<'a>>, Self::Error> {
         let f = &mut self.f;
@@ -362,7 +364,7 @@ where
     F: FnMut(I::Item<'_>) -> Result<Option<B>, I::Error>,
 {
     type Error = I::Error;
-    type Item<'a> = B;
+    type Item<'a> = B where I: 'a, F: 'a;
 
     #[inline]
     fn next(&mut self) -> Result<Option<B>, I::Error> {
@@ -441,7 +443,7 @@ where
     I: FallibleLendingIterator,
 {
     type Error = I::Error;
-    type Item<'a> = I::Item<'a>;
+    type Item<'a> = I::Item<'a> where I: 'a;
 
     #[inline]
     fn next<'a>(&'a mut self) -> Result<Option<Self::Item<'a>>, Self::Error> {
@@ -486,7 +488,7 @@ where
     F: FnMut(&I::Item<'_>) -> Result<(), I::Error>,
 {
     type Error = I::Error;
-    type Item<'a> = I::Item<'a>;
+    type Item<'a> = I::Item<'a> where I: 'a, F: 'a;
 
     #[inline]
     fn next<'a>(&'a mut self) -> Result<Option<Self::Item<'a>>, Self::Error> {
@@ -561,7 +563,7 @@ where
     F: FnMut(I::Error) -> B,
 {
     type Error = B;
-    type Item<'a> = I::Item<'a>;
+    type Item<'a> = I::Item<'a> where I: 'a, F: 'a;
 
     #[inline]
     fn next(&mut self) -> Result<Option<I::Item<'_>>, B> {
@@ -631,7 +633,7 @@ where
     I: DoubleEndedFallibleLendingIterator,
 {
     type Error = I::Error;
-    type Item<'a> = I::Item<'a>;
+    type Item<'a> = I::Item<'a> where I: 'a;
 
     #[inline]
     fn next(&mut self) -> Result<Option<I::Item<'_>>, I::Error> {
@@ -686,7 +688,7 @@ where
     F: FnMut(&mut St, I::Item<'_>) -> Result<Option<B>, I::Error>,
 {
     type Error = I::Error;
-    type Item<'a> = B;
+    type Item<'a> = B where I: 'a, St: 'a, F: 'a;
 
     #[inline]
     fn next(&mut self) -> Result<Option<B>, I::Error> {
@@ -714,7 +716,7 @@ where
     U: FallibleLendingIterator<Error = T::Error>,
 {
     type Error = T::Error;
-    type Item<'a> = (T::Item<'a>, U::Item<'a>);
+    type Item<'a> = (T::Item<'a>, U::Item<'a>) where T: 'a, U: 'a;
 
     #[inline]
     fn next<'a>(&'a mut self) -> Result<Option<Self::Item<'a>>, Self::Error> {

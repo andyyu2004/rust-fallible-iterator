@@ -808,3 +808,13 @@ where
 //         self
 //     }
 // }
+
+impl<I: FallibleLendingIterator + ?Sized> FallibleLendingIterator for &mut I {
+    type Error = I::Error;
+    type Item<'a> = I::Item<'a> where Self: 'a;
+
+    #[inline]
+    fn next(&mut self) -> Result<Option<I::Item<'_>>, I::Error> {
+        (**self).next()
+    }
+}
